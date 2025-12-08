@@ -1,6 +1,3 @@
-
-## main.py
-```python
 """
 HW03 — Rumor Loop Detector (Cycle in Undirected Graph)
 
@@ -45,11 +42,8 @@ def find_cycle(graph):
     """
     visited = set()
     parent_map = {}
-    cycle_start = None
-    cycle_end = None
     
     def dfs(node, parent):
-        nonlocal cycle_start, cycle_end
         visited.add(node)
         parent_map[node] = parent
         
@@ -65,32 +59,24 @@ def find_cycle(graph):
                     return result
             # If visited and not the parent, we found a cycle
             elif neighbor != parent:
-                cycle_start = neighbor
-                cycle_end = node
-                break
+                # Reconstruct path from cycle_end back to cycle_start
+                path = []
+                current = node
+                while current != neighbor:
+                    path.append(current)
+                    current = parent_map[current]
+                path.append(neighbor)
+                # Close the cycle so first == last (use starting node)
+                path.append(path[0])
+                return path
         
-        if cycle_start is not None and cycle_end is not None:
-            return None  # Signal to reconstruct path
         return None
     
     # Check all connected components
     for node in graph:
         if node not in visited:
             result = dfs(node, None)
-            if isinstance(result, list):
+            if result is not None:
                 return result
-            if cycle_start is not None:
-                break
-    
-    # Reconstruct the cycle path
-    if cycle_start is not None and cycle_end is not None:
-        path = []
-        current = cycle_end
-        while current != cycle_start:
-            path.append(current)
-            current = parent_map[current]
-        path.append(cycle_start)
-        path.append(cycle_start)  # Close the cycle
-        return path
     
     return None
